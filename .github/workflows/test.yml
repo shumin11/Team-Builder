@@ -1,0 +1,65 @@
+name: Node.js CI
+
+on:
+  pull_request:
+    branches:
+      - '**'
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [22.x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Cache Node.js modules for backend
+        uses: actions/cache@v2
+        with:
+          path: backend/node_modules
+          key: ${{ runner.os }}-backend-node-${{ matrix.node-version }}-${{ hashFiles('backend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-backend-node-${{ matrix.node-version }}-
+
+      - name: Install dependencies for backend
+        working-directory: ./backend
+        run: npm install
+
+      - name: List node modules for backend
+        working-directory: ./backend
+        run: ls -l node_modules
+
+      - name: Run tests for backend
+        working-directory: ./backend
+        run: npm test
+        env: 
+          MONGODB_URI: https://github.com
+          
+  
+      - name: Cache Node.js modules for frontend
+        uses: actions/cache@v2
+        with:
+          path: frontend/TeamBuilder/node_modules
+          key: ${{ runner.os }}-frontend-node-${{ matrix.node-version }}-${{ hashFiles('frontend/TeamBuilder/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-frontend-node-${{ matrix.node-version }}-
+
+      - name: Install dependencies for frontend
+        working-directory: ./frontend/TeamBuilder
+        run: npm install
+
+      - name: Run tests for frontend
+        working-directory: ./frontend/TeamBuilder
+        run: npm test
