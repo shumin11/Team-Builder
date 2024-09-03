@@ -1,4 +1,4 @@
-# Team-Member-Website
+# Team-Builder
 
 ## Deployed website
 You can explore the live version of the Team Builder app here: https://shumin-teambuilder.onrender.com/
